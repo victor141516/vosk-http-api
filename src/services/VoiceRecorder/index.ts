@@ -12,7 +12,7 @@ export class VoiceRecorderError {
 }
 export class MissingLanguageModelVoiceRecorderError extends VoiceRecorderError {}
 
-export type VoiceRecognizerItemType = 'result' | 'partial'
+export type VoiceRecognizerItemType = 'partial' | 'line' | 'complete'
 export interface VoiceRecognizerItem {
   type: VoiceRecognizerItemType
   text: string
@@ -66,6 +66,11 @@ export class VoiceRecognizer {
     rec.setWords(splitWords)
     rec.setPartialWords(splitWords)
     let lastPartialTs: number | null = -1
+    const completeText: VoiceRecognizerItem = {
+      type: 'complete',
+      text: '',
+      words: splitWords ? [] : undefined,
+    }
 
     for await (const data of wfReadable) {
       const endOfSpeech = await rec.acceptWaveformAsync(data)
@@ -73,8 +78,13 @@ export class VoiceRecognizer {
         const res = rec.result()
         if (res.text.length === 0) continue
 
+        completeText.text += res.text
+        completeText.words?.push(...(res.result ?? []))
+
+        if (!yieldPartials) continue
+
         yield {
-          type: 'result',
+          type: 'line',
           text: res.text,
           words: res.result,
         }
@@ -94,13 +104,16 @@ export class VoiceRecognizer {
       }
     }
     const res = rec.finalResult()
-    if (res.text.length > 0) {
+    if (res.text.length > 0 && yieldPartials) {
       yield {
-        type: 'result',
+        type: 'line',
         text: res.text,
         words: res.result,
       }
+      completeText.text += res.text
+      completeText.words?.push(...(res.result ?? []))
     }
+    yield completeText
     rec.free()
   }
 
