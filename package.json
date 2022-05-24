@@ -1,0 +1,55 @@
+{
+  "name": "vosk-http-api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=17.0.0"
+  },
+  "scripts": {
+    "node": "node --experimental-specifier-resolution=node",
+    "ts-node": "npm run node -- --loader ts-node/esm -r tsconfig-paths/register",
+    "start": "npm run ts-node -- src/index.ts",
+    "build": "tsc",
+    "run-compiled": "npm run node",
+    "lint": "eslint src/**",
+    "lint:tsc": "tsc --noEmit"
+  },
+  "importSort": {
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "module-scoped"
+    }
+  },
+  "eslintIgnore": [
+    "/**/*.js"
+  ],
+  "dependencies": {
+    "celebrate": "^15.0.1",
+    "express": "^4.18.1",
+    "joi": "^17.6.0",
+    "vosk": "https://gitpkg.now.sh/alphacep/vosk-api/nodejs?master",
+    "wav": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jsdom": "^16.2.14",
+    "@types/node": "^17.0.35",
+    "@types/node-fetch": "^3.0.2",
+    "@types/wav": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.8.0",
+    "ts-node-dev": "^1.1.8",
+    "tsconfig-paths": "^4.0.0",
+    "typescript": "^4.6.4"
+  }
+}
