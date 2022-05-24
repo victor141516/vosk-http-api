@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import { celebrate, Segments } from 'celebrate'
 import { Readable } from 'node:stream'
@@ -14,6 +14,16 @@ const queryValidator = {
     splitWords: Joi.string().valid('true', 'false').default('false'),
     yieldPartials: Joi.string().valid('true', 'false').default('false'),
   }),
+}
+
+const queryParser = async (
+  req: Request<{}, {}, {}, { language: string } & RecognizeOptions>,
+  _: Response,
+  next: NextFunction,
+) => {
+  req.query.splitWords = req.query.splitWords?.toString() === 'true'
+  req.query.yieldPartials = req.query.yieldPartials?.toString() === 'true'
+  next()
 }
 
 const requestHandler = async (req: Request<{}, {}, {}, { language: string } & RecognizeOptions>, res: Response) => {
@@ -38,11 +48,7 @@ const requestHandler = async (req: Request<{}, {}, {}, { language: string } & Re
 app.post<{}, {}, {}, { language: string } & RecognizeOptions>(
   '*',
   celebrate(queryValidator),
-  (req, _, next) => {
-    req.query.splitWords = req.query.splitWords?.toString() === 'true'
-    req.query.yieldPartials = req.query.yieldPartials?.toString() === 'true'
-    next()
-  },
+  queryParser,
   requestHandler,
 )
 
