@@ -22,6 +22,7 @@ export interface VoiceRecognizerItem {
 export interface RecognizeOptions {
   splitWords?: boolean
   yieldPartials?: boolean
+  onHalt?: (arg: () => void) => void
 }
 
 export class VoiceRecognizer {
@@ -46,7 +47,7 @@ export class VoiceRecognizer {
   async *recognize(
     wavStream: Readable,
     language: string,
-    { splitWords = false, yieldPartials = false }: RecognizeOptions,
+    { splitWords = false, yieldPartials = false, onHalt }: RecognizeOptions,
   ): AsyncGenerator<VoiceRecognizerItem> {
     const wfReader = new wav.Reader()
     const wfReadable = new Readable().wrap(wfReader)
@@ -63,6 +64,7 @@ export class VoiceRecognizer {
     })
     wavStream.pipe(wfReader)
     const rec = await recPromise
+    onHalt?.(() => rec.free())
     rec.setWords(splitWords)
     rec.setPartialWords(splitWords)
     let lastPartialTs: number | null = -1

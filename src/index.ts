@@ -27,6 +27,11 @@ const queryParser = async (
 }
 
 const requestHandler = async (req: Request<{}, {}, {}, { language: string } & RecognizeOptions>, res: Response) => {
+  let freeRecognizer: null | (() => void) = null
+  req.on('close', () => {
+    freeRecognizer?.()
+  })
+
   try {
     vr.getModel(req.query.language)
   } catch (error) {
@@ -40,7 +45,7 @@ const requestHandler = async (req: Request<{}, {}, {}, { language: string } & Re
   req.statusCode = 200
   res.setHeader('Content-Type', 'application/jsonlines+json')
   const stream = Readable.from(req)
-  const generator = vr.recognize(stream, req.query.language, req.query)
+  const generator = vr.recognize(stream, req.query.language, { ...req.query, onHalt: (f) => (freeRecognizer = f) })
   for await (const e of generator) res.write(JSON.stringify(e) + '\n')
   res.end()
 }
