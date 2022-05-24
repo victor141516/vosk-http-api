@@ -13,6 +13,11 @@ RUN npm i
 COPY . .
 RUN npm run build
 
+FROM node-vosk-installed as dev
+COPY . .
+RUN npm i
+CMD ["npm", "run", "start"]
+
 FROM node-vosk-installed
 ENV NODE_PATH=/app
 COPY --from=builder /app/dist ./
