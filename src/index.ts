@@ -35,7 +35,16 @@ const requestHandler = async (req: Request<{}, {}, {}, { language: string } & Re
   res.end()
 }
 
-app.post<{}, {}, {}, { language: string } & RecognizeOptions>('*', celebrate(queryValidator), requestHandler)
+app.post<{}, {}, {}, { language: string } & RecognizeOptions>(
+  '*',
+  celebrate(queryValidator),
+  (req, _, next) => {
+    req.query.splitWords = req.query.splitWords?.toString() === 'true'
+    req.query.yieldPartials = req.query.yieldPartials?.toString() === 'true'
+    next()
+  },
+  requestHandler,
+)
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
