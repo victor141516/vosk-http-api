@@ -4,6 +4,7 @@ import { celebrate, Segments } from 'celebrate'
 import { Readable } from 'node:stream'
 import { PORT, MODELS_PATH } from 'services/Config'
 import { MissingLanguageModelVoiceRecorderError, RecognizeOptions, VoiceRecognizer } from 'services/VoiceRecorder'
+import { getAudioStream } from 'services/Conversion'
 
 const app = express()
 const vr = new VoiceRecognizer(MODELS_PATH)
@@ -44,8 +45,9 @@ const requestHandler = async (req: Request<{}, {}, {}, { language: string } & Re
   }
   req.statusCode = 200
   res.setHeader('Content-Type', 'application/jsonlines+json')
-  const stream = Readable.from(req)
-  const generator = vr.recognize(stream, req.query.language, { ...req.query, onHalt: (f) => (freeRecognizer = f) })
+  const inputStream = Readable.from(req)
+  const audioStream = getAudioStream(inputStream)
+  const generator = vr.recognize(audioStream, req.query.language, { ...req.query, onHalt: (f) => (freeRecognizer = f) })
   for await (const e of generator) res.write(JSON.stringify(e) + '\n')
   res.end()
 }

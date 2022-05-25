@@ -45,7 +45,7 @@ export class VoiceRecognizer {
   }
 
   async *recognize(
-    wavStream: Readable,
+    wavStream: { pipe: Readable['pipe'] },
     language: string,
     { splitWords = false, yieldPartials = false, onHalt }: RecognizeOptions,
   ): AsyncGenerator<VoiceRecognizerItem> {
