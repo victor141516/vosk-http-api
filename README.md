@@ -17,6 +17,7 @@ docker run \
 ```
 
 You will need to download the Vosk voice models and put them in the `models` directory, having each of them in a subdirectory named after the language. e.g. `models/esES` will contain the Spanish model:
+
 ![image](https://user-images.githubusercontent.com/5548950/170455858-caafe5c1-941e-4ce0-9032-fb2dbcc1fb3d.png)
 
 ## Development
